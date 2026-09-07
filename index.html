@@ -10,11 +10,18 @@
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+<div class="bg-blob bg-blob--one" aria-hidden="true"></div>
+<div class="bg-blob bg-blob--two" aria-hidden="true"></div>
+<div class="weather-fx" aria-hidden="true"></div>
 <main class="card">
 <h1>Weather Now</h1>
+<p class="subtitle">Check the sky, anywhere.</p>
 <form id="weather-form">
-<input type="text" id="city-input" placeholder="Enter a city" required />
-<button type="submit">Get Weather</button>
+<input type="text" id="city-input" placeholder="Enter a city" aria-label="City" required />
+<button type="submit">
+Get Weather
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
 </form>
 <div id="result"></div>
 </main>
