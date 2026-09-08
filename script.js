@@ -27,14 +27,22 @@ async function getWeather(city) {
 
     applyScene(data);
 
+    const { lat, lon, name, country } = data.location;
     result.innerHTML = `
       <div class="result-content">
-        <h2>${data.location.name}, ${data.location.country}</h2>
+        <h2>${name}, ${country}</h2>
         <div class="weather-main">
           <img src="https:${data.current.condition.icon}" alt="${data.current.condition.text}" />
           <p class="temp">${Math.round(data.current.temp_c)}°</p>
         </div>
         <p class="condition">${data.current.condition.text}</p>
+        <iframe
+          class="map-frame"
+          title="Map of ${name}, ${country}"
+          src="https://maps.google.com/maps?q=${lat},${lon}&z=11&output=embed"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+        ></iframe>
       </div>
     `;
   } catch (err) {
