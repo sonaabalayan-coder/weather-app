@@ -223,19 +223,22 @@ async function getWeather(city) {
 
         ${renderAirQuality(data.current.air_quality)}
 
-        <div class="forecast-toggle">
-          <button type="button" class="toggle-btn active" data-view="day">Day</button>
-          <button type="button" class="toggle-btn" data-view="week">Week</button>
+        <div class="forecast-map-row">
+          <div class="forecast-col">
+            <div class="forecast-toggle">
+              <button type="button" class="toggle-btn active" data-view="day">Day</button>
+              <button type="button" class="toggle-btn" data-view="week">Week</button>
+            </div>
+            <div class="forecast-strip" id="forecast-strip"></div>
+          </div>
+          <iframe
+            class="map-frame"
+            title="Map of ${name}, ${country}"
+            src="https://maps.google.com/maps?q=${lat},${lon}&z=11&output=embed"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+          ></iframe>
         </div>
-        <div class="forecast-strip" id="forecast-strip"></div>
-
-        <iframe
-          class="map-frame"
-          title="Map of ${name}, ${country}"
-          src="https://maps.google.com/maps?q=${lat},${lon}&z=11&output=embed"
-          loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade"
-        ></iframe>
       </div>
     `;
 
