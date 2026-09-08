@@ -308,25 +308,44 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; bord
   to { transform: rotate(360deg); }
 }
 
-.quote {
+.quote-card {
   position: relative;
   z-index: 1;
-  max-width: 340px;
-  margin: 0;
-  padding: 0 16px;
+  width: min(320px, 90vw);
+  padding: 22px 26px;
+  border-radius: 18px;
   text-align: center;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(6px);
+  transition: background 0.8s ease, border-color 0.8s ease, box-shadow 0.8s ease;
+}
+
+.quote-label {
+  margin: 0 0 10px;
+  font-family: 'Fraunces', serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  transition: color 0.8s ease;
+}
+
+.quote {
+  margin: 0;
   font-family: 'Fraunces', serif;
   font-style: italic;
   font-size: 14px;
   line-height: 1.5;
   color: var(--ink);
-  opacity: 0.8;
   transition: color 0.8s ease;
 }
 
 .quote-author {
   display: block;
-  margin-top: 6px;
+  margin-top: 8px;
   font-family: 'Inter', sans-serif;
   font-style: normal;
   font-size: 11px;
