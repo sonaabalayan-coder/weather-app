@@ -508,6 +508,73 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; bord
   transform: scale(1.03);
 }
 
+.places-section {
+  margin-top: 20px;
+}
+
+.places-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.place-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  background: var(--tile-bg);
+  border: 1px solid var(--tile-border);
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.8s ease, border-color 0.8s ease, transform 0.15s ease;
+}
+
+.place-item:hover {
+  transform: translateX(2px);
+}
+
+.place-thumb {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: var(--tile-bg);
+}
+
+.place-thumb--fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.place-body { min-width: 0; }
+
+.place-name {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.place-desc {
+  margin: 2px 0 0;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 .side-label {
   margin: 0;
   font-family: 'Fraunces', serif;

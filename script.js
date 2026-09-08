@@ -185,8 +185,69 @@ function renderPhotos(photos, name) {
   `;
 }
 
+async function fetchTopPlaces(name, lat, lon) {
+  const geoUrl = `https://en.wikipedia.org/w/api.php?action=query&list=geosearch&gscoord=${lat}|${lon}&gsradius=10000&gslimit=30&format=json&origin=*`;
+
+  try {
+    const geoRes = await fetch(geoUrl);
+    const geoData = await geoRes.json();
+    const results = (geoData.query && geoData.query.geosearch) || [];
+    const nearby = results
+      .filter((r) => r.title.toLowerCase() !== name.toLowerCase())
+      .filter((r) => !/\b(hotel|station|metro|airport|resort|inn|hostel)\b/i.test(r.title))
+      .slice(0, 5);
+    if (!nearby.length) return [];
+
+    const pageIds = nearby.map((r) => r.pageid).join("|");
+    const detailUrl = `https://en.wikipedia.org/w/api.php?action=query&pageids=${pageIds}&prop=pageimages|extracts&exintro&explaintext&exchars=120&piprop=thumbnail&pithumbsize=100&format=json&origin=*`;
+    const detailRes = await fetch(detailUrl);
+    const detailData = await detailRes.json();
+    const pages = (detailData.query && detailData.query.pages) || {};
+
+    return nearby.map((r) => {
+      const page = pages[r.pageid] || {};
+      return {
+        pageid: r.pageid,
+        title: r.title,
+        desc: page.extract ? page.extract.split(/(?<=[.!?])\s/)[0] : "",
+        thumb: page.thumbnail ? page.thumbnail.source : null
+      };
+    });
+  } catch (err) {
+    return [];
+  }
+}
+
+function renderPlaces(places) {
+  if (!places.length) return "";
+  return `
+    <div class="places-section">
+      <p class="side-label">Top Places to Visit</p>
+      <div class="places-list">
+        ${places
+          .map(
+            (p) => `
+              <a class="place-item" href="https://en.wikipedia.org/?curid=${p.pageid}" target="_blank" rel="noopener noreferrer">
+                ${
+                  p.thumb
+                    ? `<img class="place-thumb" src="${p.thumb}" alt="" loading="lazy" />`
+                    : `<span class="place-thumb place-thumb--fallback">📍</span>`
+                }
+                <div class="place-body">
+                  <p class="place-name">${p.title}</p>
+                  ${p.desc ? `<p class="place-desc">${p.desc}</p>` : ""}
+                </div>
+              </a>
+            `
+          )
+          .join("")}
+      </div>
+    </div>
+  `;
+}
+
 let currentForecastData = null;
-let photoRequestSeq = 0;
+let sideRequestSeq = 0;
 
 sidePanel.addEventListener("click", (e) => {
   const btn = e.target.closest(".toggle-btn");
@@ -293,10 +354,14 @@ async function getWeather(city) {
 
     renderForecastStrip("day", data);
 
-    const requestId = ++photoRequestSeq;
+    const requestId = ++sideRequestSeq;
     fetchCityPhotos(name, country).then((photos) => {
-      if (requestId !== photoRequestSeq) return;
+      if (requestId !== sideRequestSeq) return;
       sidePanel.insertAdjacentHTML("beforeend", renderPhotos(photos, name));
+    });
+    fetchTopPlaces(name, lat, lon).then((places) => {
+      if (requestId !== sideRequestSeq) return;
+      sidePanel.insertAdjacentHTML("beforeend", renderPlaces(places));
     });
   } catch (err) {
     result.innerHTML = `<p class="error">Network error. Try again.</p>`;
