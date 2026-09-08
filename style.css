@@ -480,6 +480,34 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; bord
   margin-top: 14px;
 }
 
+.photo-section {
+  margin-top: 20px;
+}
+
+.photo-strip {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  padding-bottom: 4px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.photo-thumb {
+  flex: 0 0 auto;
+  width: 92px;
+  height: 68px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--tile-border);
+  background: var(--tile-bg);
+  transition: border-color 0.8s ease, transform 0.15s ease;
+}
+
+.photo-thumb:hover {
+  transform: scale(1.03);
+}
+
 .side-label {
   margin: 0;
   font-family: 'Fraunces', serif;

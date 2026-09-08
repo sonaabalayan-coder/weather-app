@@ -142,7 +142,51 @@ function renderForecastStrip(view, data) {
   }
 }
 
+async function fetchCityPhotos(name, country) {
+  const query = `${name} ${country}`;
+  const url = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query)}&gsrnamespace=6&gsrlimit=12&prop=imageinfo&iiprop=url|mime&iiurlwidth=320&format=json&origin=*`;
+
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    const pages = data.query && data.query.pages ? Object.values(data.query.pages) : [];
+
+    return pages
+      .filter((p) => p.imageinfo && p.imageinfo[0] && /^image\/(jpeg|png)$/.test(p.imageinfo[0].mime))
+      .filter((p) => !/flag|coat of arms|locator|location map|\bmap\b/i.test(p.title))
+      .slice(0, 6)
+      .map((p) => ({
+        thumb: p.imageinfo[0].thumburl,
+        full: p.imageinfo[0].url,
+        title: p.title.replace(/^File:/, "").replace(/\.[a-zA-Z]+$/, "")
+      }));
+  } catch (err) {
+    return [];
+  }
+}
+
+function renderPhotos(photos, name) {
+  if (!photos.length) return "";
+  return `
+    <div class="photo-section">
+      <p class="side-label">Photos of ${name}</p>
+      <div class="photo-strip">
+        ${photos
+          .map(
+            (p) => `
+              <a href="${p.full}" target="_blank" rel="noopener noreferrer" title="${p.title}">
+                <img class="photo-thumb" src="${p.thumb}" alt="${p.title}" loading="lazy" />
+              </a>
+            `
+          )
+          .join("")}
+      </div>
+    </div>
+  `;
+}
+
 let currentForecastData = null;
+let photoRequestSeq = 0;
 
 sidePanel.addEventListener("click", (e) => {
   const btn = e.target.closest(".toggle-btn");
@@ -248,6 +292,12 @@ async function getWeather(city) {
     `;
 
     renderForecastStrip("day", data);
+
+    const requestId = ++photoRequestSeq;
+    fetchCityPhotos(name, country).then((photos) => {
+      if (requestId !== photoRequestSeq) return;
+      sidePanel.insertAdjacentHTML("beforeend", renderPhotos(photos, name));
+    });
   } catch (err) {
     result.innerHTML = `<p class="error">Network error. Try again.</p>`;
   }
