@@ -1,5 +1,37 @@
 const form = document.getElementById("weather-form");
 const result = document.getElementById("result");
+const quoteEl = document.getElementById("quote");
+
+const QUOTES = [
+  { text: "The best way out is always through.", author: "Robert Frost" },
+  { text: "What lies behind us and what lies before us are tiny matters compared to what lies within us.", author: "Ralph Waldo Emerson" },
+  { text: "It always seems impossible until it's done.", author: "Nelson Mandela" },
+  { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+  { text: "Turn your wounds into wisdom.", author: "Oprah Winfrey" },
+  { text: "Do not wait for the perfect moment, take the moment and make it perfect.", author: "Unknown" },
+  { text: "The secret of getting ahead is getting started.", author: "Mark Twain" },
+  { text: "You are never too old to set another goal or to dream a new dream.", author: "C. S. Lewis" },
+  { text: "In the middle of difficulty lies opportunity.", author: "Albert Einstein" },
+  { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+  { text: "Simplicity is the ultimate sophistication.", author: "Leonardo da Vinci" },
+  { text: "The journey of a thousand miles begins with a single step.", author: "Lao Tzu" },
+  { text: "Out of difficulties grow miracles.", author: "Jean de La Bruyère" },
+  { text: "Every sunrise is an invitation to brighten someone's day.", author: "Richelle E. Goodrich" },
+  { text: "Storms make trees take deeper roots.", author: "Dolly Parton" },
+  { text: "Keep your face always toward the sunshine, and shadows will fall behind you.", author: "Walt Whitman" },
+  { text: "Not all those who wander are lost.", author: "J. R. R. Tolkien" },
+  { text: "Difficulties in life are intended to make us better, not bitter.", author: "Dan Reeves" },
+  { text: "The clearest way into the Universe is through a forest wilderness.", author: "John Muir" },
+  { text: "A little progress each day adds up to big results.", author: "Unknown" }
+];
+
+function showDailyQuote() {
+  const dayIndex = Math.floor(Date.now() / 86400000);
+  const { text, author } = QUOTES[dayIndex % QUOTES.length];
+  quoteEl.innerHTML = `"${text}"<span class="quote-author">${author}</span>`;
+}
+
+showDailyQuote();
 
 function classifyWeather(conditionText, isDay) {
   const text = conditionText.toLowerCase();
