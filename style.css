@@ -9,6 +9,7 @@
   --gold-soft: rgba(217, 164, 65, 0.18);
   --blob-1: #8FB8F5;
   --blob-2: #5D74D6;
+  --rain-color: 88, 114, 163;
   --error: #C1554D;
   --shadow: 0 30px 60px -20px rgba(43, 33, 64, 0.25), 0 10px 24px -12px rgba(43, 33, 64, 0.15);
 }
@@ -24,6 +25,7 @@ body[data-theme="night"] {
   --gold-soft: rgba(232, 190, 104, 0.16);
   --blob-1: #3E5AA8;
   --blob-2: #22306B;
+  --rain-color: 197, 213, 240;
   --shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.55), 0 10px 24px -12px rgba(0, 0, 0, 0.4);
 }
 
@@ -97,16 +99,7 @@ body[data-weather="clear"] .weather-fx {
 
 body[data-weather="rain"] .weather-fx {
   opacity: 1;
-  background-image: repeating-linear-gradient(
-    112deg,
-    transparent 0px,
-    transparent 2px,
-    rgba(170, 195, 230, 0.45) 3px,
-    rgba(170, 195, 230, 0.45) 4px,
-    transparent 6px,
-    transparent 42px
-  );
-  animation: rain-fall 0.4s linear infinite;
+  background: linear-gradient(to bottom, rgba(110, 130, 170, 0.14), rgba(90, 110, 155, 0.04) 40%);
 }
 
 body[data-weather="snow"] .weather-fx {
@@ -124,9 +117,33 @@ body[data-weather="snow"] .weather-fx {
   50% { opacity: 1; }
 }
 
-@keyframes rain-fall {
-  from { background-position: 0 0; }
-  to { background-position: -42px 60px; }
+.rain-layer {
+  position: fixed;
+  inset: -5% -5%;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+body[data-weather="rain"] .rain-layer { opacity: 1; }
+
+.raindrop {
+  position: absolute;
+  top: -15%;
+  left: var(--x);
+  width: 1.5px;
+  height: var(--h);
+  background: linear-gradient(to bottom, rgba(var(--rain-color), 0), rgba(var(--rain-color), var(--o)));
+  transform: translateY(0) skewX(-7deg);
+  animation: raindrop-fall var(--d) linear infinite;
+  animation-delay: var(--delay);
+}
+
+@keyframes raindrop-fall {
+  from { transform: translateY(0) skewX(-7deg); }
+  to { transform: translateY(135vh) skewX(-7deg); }
 }
 
 @keyframes snow-fall {
@@ -319,7 +336,7 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; bord
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .card, .result-content, .error, .spinner, .weather-fx {
+  .card, .result-content, .error, .spinner, .weather-fx, .raindrop {
     animation: none;
   }
 }

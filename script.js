@@ -33,6 +33,32 @@ function showDailyQuote() {
 
 showDailyQuote();
 
+function buildRain() {
+  const layer = document.getElementById("rain-layer");
+  const dropCount = 90;
+  const frag = document.createDocumentFragment();
+
+  for (let i = 0; i < dropCount; i++) {
+    const drop = document.createElement("span");
+    drop.className = "raindrop";
+    const depth = Math.random();
+    const length = 35 + depth * 55;
+    const duration = 1.1 - depth * 0.65;
+    const delay = -Math.random() * duration;
+    const opacity = 0.25 + depth * 0.45;
+    drop.style.setProperty("--x", `${Math.random() * 100}%`);
+    drop.style.setProperty("--h", `${length}px`);
+    drop.style.setProperty("--d", `${duration}s`);
+    drop.style.setProperty("--delay", `${delay}s`);
+    drop.style.setProperty("--o", opacity);
+    frag.appendChild(drop);
+  }
+
+  layer.appendChild(frag);
+}
+
+buildRain();
+
 function classifyWeather(conditionText, isDay) {
   const text = conditionText.toLowerCase();
   if (/snow|sleet|ice|blizzard/.test(text)) return "snow";
