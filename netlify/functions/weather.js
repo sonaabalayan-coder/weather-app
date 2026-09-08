@@ -5,7 +5,7 @@ exports.handler = async (event) => {
   }
  
   const apiKey = process.env.WEATHER_API_KEY;
-  const url = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${encodeURIComponent(city)}`;
+  const url = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${encodeURIComponent(city)}&days=3&aqi=yes&alerts=no`;
  
   try {
     const response = await fetch(url);

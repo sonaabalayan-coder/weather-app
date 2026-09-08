@@ -73,6 +73,84 @@ function applyScene(data) {
   document.body.dataset.weather = classifyWeather(data.current.condition.text, isDay);
 }
 
+const AQI_LEVELS = [
+  null,
+  { text: "Good", color: "#4CAF50" },
+  { text: "Moderate", color: "#C9A227" },
+  { text: "Unhealthy for sensitive groups", color: "#E07B39" },
+  { text: "Unhealthy", color: "#D9534F" },
+  { text: "Very unhealthy", color: "#8E44AD" },
+  { text: "Hazardous", color: "#6E2C2C" }
+];
+
+function renderAirQuality(airQuality) {
+  if (!airQuality) return "";
+  const level = AQI_LEVELS[airQuality["us-epa-index"]];
+  if (!level) return "";
+  const pm25 = Math.round(airQuality.pm2_5);
+  return `
+    <div class="aqi-row">
+      <span class="aqi-dot" style="background:${level.color}"></span>
+      <div class="aqi-body">
+        <p class="stat-label">Air Quality</p>
+        <p class="aqi-value" style="color:${level.color}">${level.text}</p>
+      </div>
+      <p class="aqi-detail">PM2.5 ${pm25} &micro;g/m&sup3;</p>
+    </div>
+  `;
+}
+
+function getUpcomingHours(forecastDays, nowEpoch) {
+  const hours = forecastDays.flatMap((day) => day.hour);
+  const startIndex = hours.findIndex((hour) => hour.time_epoch >= nowEpoch);
+  const from = startIndex === -1 ? 0 : startIndex;
+  return hours.slice(from, from + 8);
+}
+
+function renderForecastStrip(view, data) {
+  const strip = document.getElementById("forecast-strip");
+  if (!strip) return;
+
+  if (view === "day") {
+    const hours = getUpcomingHours(data.forecast.forecastday, data.location.localtime_epoch);
+    strip.innerHTML = hours
+      .map((hour) => {
+        const time = hour.time.split(" ")[1];
+        return `
+          <div class="forecast-card">
+            <p class="forecast-time">${time}</p>
+            <img src="https:${hour.condition.icon}" alt="${hour.condition.text}" />
+            <p class="forecast-temp">${Math.round(hour.temp_c)}°</p>
+          </div>
+        `;
+      })
+      .join("");
+  } else {
+    strip.innerHTML = data.forecast.forecastday
+      .map((day, i) => {
+        const label = i === 0 ? "Today" : new Date(`${day.date}T00:00:00`).toLocaleDateString(undefined, { weekday: "short" });
+        return `
+          <div class="forecast-card">
+            <p class="forecast-time">${label}</p>
+            <img src="https:${day.day.condition.icon}" alt="${day.day.condition.text}" />
+            <p class="forecast-temp">${Math.round(day.day.avgtemp_c)}°</p>
+          </div>
+        `;
+      })
+      .join("");
+  }
+}
+
+let currentForecastData = null;
+
+result.addEventListener("click", (e) => {
+  const btn = e.target.closest(".toggle-btn");
+  if (!btn || !currentForecastData) return;
+  document.querySelectorAll(".toggle-btn").forEach((b) => b.classList.remove("active"));
+  btn.classList.add("active");
+  renderForecastStrip(btn.dataset.view, currentForecastData);
+});
+
 async function getWeather(city) {
   result.innerHTML = `<div class="spinner" aria-label="Loading weather"></div>`;
   try {
@@ -84,8 +162,11 @@ async function getWeather(city) {
     }
 
     applyScene(data);
+    currentForecastData = data;
 
     const { lat, lon, name, country } = data.location;
+    const astro = data.forecast.forecastday[0].astro;
+
     result.innerHTML = `
       <div class="result-content">
         <h2>${name}, ${country}</h2>
@@ -94,6 +175,60 @@ async function getWeather(city) {
           <p class="temp">${Math.round(data.current.temp_c)}°</p>
         </div>
         <p class="condition">${data.current.condition.text}</p>
+
+        <div class="stats-grid">
+          <div class="stat-tile">
+            <span class="stat-icon">🌡️</span>
+            <div class="stat-body">
+              <p class="stat-label">Feels Like</p>
+              <p class="stat-value">${Math.round(data.current.feelslike_c)}°C</p>
+            </div>
+          </div>
+          <div class="stat-tile">
+            <span class="stat-icon">💧</span>
+            <div class="stat-body">
+              <p class="stat-label">Humidity</p>
+              <p class="stat-value">${data.current.humidity}%</p>
+            </div>
+          </div>
+          <div class="stat-tile">
+            <span class="stat-icon">💨</span>
+            <div class="stat-body">
+              <p class="stat-label">Wind</p>
+              <p class="stat-value">${Number(data.current.wind_kph).toFixed(1)} kph</p>
+            </div>
+          </div>
+          <div class="stat-tile">
+            <span class="stat-icon">☀️</span>
+            <div class="stat-body">
+              <p class="stat-label">UV Index</p>
+              <p class="stat-value">${Number(data.current.uv).toFixed(1)}</p>
+            </div>
+          </div>
+          <div class="stat-tile">
+            <span class="stat-icon">🌅</span>
+            <div class="stat-body">
+              <p class="stat-label">Sunrise</p>
+              <p class="stat-value">${astro.sunrise}</p>
+            </div>
+          </div>
+          <div class="stat-tile">
+            <span class="stat-icon">🌇</span>
+            <div class="stat-body">
+              <p class="stat-label">Sunset</p>
+              <p class="stat-value">${astro.sunset}</p>
+            </div>
+          </div>
+        </div>
+
+        ${renderAirQuality(data.current.air_quality)}
+
+        <div class="forecast-toggle">
+          <button type="button" class="toggle-btn active" data-view="day">Day</button>
+          <button type="button" class="toggle-btn" data-view="week">Week</button>
+        </div>
+        <div class="forecast-strip" id="forecast-strip"></div>
+
         <iframe
           class="map-frame"
           title="Map of ${name}, ${country}"
@@ -103,6 +238,8 @@ async function getWeather(city) {
         ></iframe>
       </div>
     `;
+
+    renderForecastStrip("day", data);
   } catch (err) {
     result.innerHTML = `<p class="error">Network error. Try again.</p>`;
   }
