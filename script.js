@@ -1,5 +1,6 @@
 const form = document.getElementById("weather-form");
 const result = document.getElementById("result");
+const sidePanel = document.getElementById("side-panel");
 const quoteEl = document.getElementById("quote");
 
 const QUOTES = [
@@ -143,16 +144,17 @@ function renderForecastStrip(view, data) {
 
 let currentForecastData = null;
 
-result.addEventListener("click", (e) => {
+sidePanel.addEventListener("click", (e) => {
   const btn = e.target.closest(".toggle-btn");
   if (!btn || !currentForecastData) return;
-  document.querySelectorAll(".toggle-btn").forEach((b) => b.classList.remove("active"));
+  sidePanel.querySelectorAll(".toggle-btn").forEach((b) => b.classList.remove("active"));
   btn.classList.add("active");
   renderForecastStrip(btn.dataset.view, currentForecastData);
 });
 
 async function getWeather(city) {
   result.innerHTML = `<div class="spinner" aria-label="Loading weather"></div>`;
+  sidePanel.innerHTML = "";
   try {
     const res = await fetch(`/.netlify/functions/weather?city=${encodeURIComponent(city)}`);
     const data = await res.json();
@@ -222,23 +224,26 @@ async function getWeather(city) {
         </div>
 
         ${renderAirQuality(data.current.air_quality)}
+      </div>
+    `;
 
-        <div class="forecast-map-row">
-          <div class="forecast-col">
-            <div class="forecast-toggle">
-              <button type="button" class="toggle-btn active" data-view="day">Day</button>
-              <button type="button" class="toggle-btn" data-view="week">Week</button>
-            </div>
-            <div class="forecast-strip" id="forecast-strip"></div>
+    sidePanel.innerHTML = `
+      <p class="side-label">Forecast</p>
+      <div class="forecast-map-row">
+        <div class="forecast-col">
+          <div class="forecast-toggle">
+            <button type="button" class="toggle-btn active" data-view="day">Day</button>
+            <button type="button" class="toggle-btn" data-view="week">Week</button>
           </div>
-          <iframe
-            class="map-frame"
-            title="Map of ${name}, ${country}"
-            src="https://maps.google.com/maps?q=${lat},${lon}&z=11&output=embed"
-            loading="lazy"
-            referrerpolicy="no-referrer-when-downgrade"
-          ></iframe>
+          <div class="forecast-strip" id="forecast-strip"></div>
         </div>
+        <iframe
+          class="map-frame"
+          title="Map of ${name}, ${country}"
+          src="https://maps.google.com/maps?q=${lat},${lon}&z=11&output=embed"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+        ></iframe>
       </div>
     `;
 
